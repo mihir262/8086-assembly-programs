@@ -1,1 +1,5 @@
-/tools/
+/tools/*
+!/tools/README.md
+!/tools/UASM-LICENSE.txt
+!/tools/uasm-macos
+!/tools/uasm-linux
