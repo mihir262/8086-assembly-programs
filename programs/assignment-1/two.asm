@@ -1,3 +1,5 @@
+; perform 32-bit addition and subtraction
+
 .model small
 .stack 100h
 
@@ -27,10 +29,7 @@ main proc
     mov ax, @data
     mov ds, ax
 
-;====================================================================
-; 1. 32-BIT ADDITION
-;====================================================================
-    ; Display Section Header
+; 32-bit addition
     lea dx, title1
     mov ah, 09h
     int 21h
@@ -76,7 +75,6 @@ next32_add1_ls:
     add bx, ax
     dec ch
     jnz read32_add1_ls
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -126,7 +124,6 @@ next32_add2_ls:
     add bx, ax
     dec ch
     jnz read32_add2_ls
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -185,10 +182,7 @@ next32_disp_add_ls:
     dec ch
     jnz disp32_add_ls
 
-;====================================================================
-; 2. 32-BIT SUBTRACTION
-;====================================================================
-    ; Display Section Header
+; 32-bit subtraction
     lea dx, title2
     mov ah, 09h
     int 21h
@@ -234,7 +228,6 @@ next32_sub1_ls:
     add bx, ax
     dec ch
     jnz read32_sub1_ls
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -284,7 +277,6 @@ next32_sub2_ls:
     add bx, ax
     dec ch
     jnz read32_sub2_ls
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -344,7 +336,7 @@ next32_disp_sub_ls:
     jnz disp32_sub_ls
 
 ;====================================================================
-; EXIT TO DOS
+; exit to dos
 ;====================================================================
     mov dl, 0ah
     mov ah, 02h

@@ -1,3 +1,5 @@
+; perform 8-bit and 16-bit addition and subtraction
+
 .model small
 .stack 100h
 
@@ -34,10 +36,7 @@ main proc
     mov ax, @data
     mov ds, ax
 
-;====================================================================
-; 1. 8-BIT ADDITION
-;====================================================================
-    ; Display Section Header
+; 8-bit addition
     lea dx, title1
     mov ah, 09h
     int 21h
@@ -62,7 +61,6 @@ next8_add1:
     add bl, al
     dec ch
     jnz read8_add1
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -91,7 +89,6 @@ next8_add2:
     add bl, al
     dec ch
     jnz read8_add2
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -127,10 +124,7 @@ next8_disp_add:
     dec ch
     jnz disp8_add
 
-;====================================================================
-; 2. 8-BIT SUBTRACTION
-;====================================================================
-    ; Display Section Header
+; 8-bit subtraction
     lea dx, title2
     mov ah, 09h
     int 21h
@@ -155,7 +149,6 @@ next8_sub1:
     add bl, al
     dec ch
     jnz read8_sub1
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -184,7 +177,6 @@ next8_sub2:
     add bl, al
     dec ch
     jnz read8_sub2
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -220,10 +212,7 @@ next8_disp_sub:
     dec ch
     jnz disp8_sub
 
-;====================================================================
-; 3. 16-BIT ADDITION
-;====================================================================
-    ; Display Section Header
+; 16-bit addition
     lea dx, title3
     mov ah, 09h
     int 21h
@@ -249,7 +238,6 @@ next16_add1:
     add bx, ax
     dec ch
     jnz read16_add1
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -279,7 +267,6 @@ next16_add2:
     add bx, ax
     dec ch
     jnz read16_add2
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -315,10 +302,7 @@ next16_disp_add:
     dec ch
     jnz disp16_add
 
-;====================================================================
-; 4. 16-BIT SUBTRACTION
-;====================================================================
-    ; Display Section Header
+; 16-bit subtraction
     lea dx, title4
     mov ah, 09h
     int 21h
@@ -344,7 +328,6 @@ next16_sub1:
     add bx, ax
     dec ch
     jnz read16_sub1
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -374,7 +357,6 @@ next16_sub2:
     add bx, ax
     dec ch
     jnz read16_sub2
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -411,7 +393,7 @@ next16_disp_sub:
     jnz disp16_sub
 
 ;====================================================================
-; EXIT TO DOS
+; exit to dos
 ;====================================================================
     mov dl, 0ah
     mov ah, 02h

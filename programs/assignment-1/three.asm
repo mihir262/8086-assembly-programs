@@ -1,3 +1,5 @@
+; perform multibyte addition and subtraction
+
 .model small
 .stack 100h
 
@@ -22,10 +24,7 @@ main proc
     mov ax, @data
     mov ds, ax
 
-;====================================================================
-; 1. MULTIBYTE ADDITION
-;====================================================================
-    ; Display Section Header
+; multibyte addition
     lea dx, title1
     mov ah, 09h
     int 21h
@@ -55,7 +54,6 @@ next_add1_digit:
     mov num1[si], bl
     dec si
     jns read_add1_byte
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -88,7 +86,6 @@ next_add2_digit:
     mov num2[si], bl
     dec si
     jns read_add2_byte
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -133,10 +130,7 @@ next_disp_add:
     dec si
     jns disp_add_byte
 
-;====================================================================
-; 2. MULTIBYTE SUBTRACTION
-;====================================================================
-    ; Display Section Header
+; multibyte subtraction
     lea dx, title2
     mov ah, 09h
     int 21h
@@ -166,7 +160,6 @@ next_sub1_digit:
     mov num1[si], bl
     dec si
     jns read_sub1_byte
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -199,7 +192,6 @@ next_sub2_digit:
     mov num2[si], bl
     dec si
     jns read_sub2_byte
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -245,7 +237,7 @@ next_disp_sub:
     jns disp_sub_byte
 
 ;====================================================================
-; EXIT TO DOS
+; exit to dos
 ;====================================================================
     mov dl, 0ah
     mov ah, 02h

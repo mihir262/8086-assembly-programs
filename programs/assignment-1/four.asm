@@ -1,3 +1,5 @@
+; find the sum of series of 8-bit and 16-bit numbers
+
 .model small
 .stack 100h
 
@@ -28,10 +30,7 @@ main proc
     mov ax, @data
     mov ds, ax
 
-;====================================================================
-; 1. SUM OF SERIES OF 8-BIT NUMBERS
-;====================================================================
-    ; Display Section Header
+; sum of series of 8-bit numbers
     lea dx, title1
     mov ah, 09h
     int 21h
@@ -56,7 +55,6 @@ next_cnt8:
     add bl, al
     dec ch
     jnz read_cnt8
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -92,7 +90,6 @@ next_elem8:
     add bl, al
     dec ch
     jnz read_elem8
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -130,10 +127,7 @@ next_disp8_res:
     dec ch
     jnz disp8_res
 
-;====================================================================
-; 2. SUM OF SERIES OF 16-BIT NUMBERS
-;====================================================================
-    ; Display Section Header
+; sum of series of 16-bit numbers
     lea dx, title2
     mov ah, 09h
     int 21h
@@ -158,7 +152,6 @@ next_cnt16:
     add bl, al
     dec ch
     jnz read_cnt16
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -196,7 +189,6 @@ next_elem16:
     add bx, ax
     dec ch
     jnz read_elem16
-    ;----------- NEW LINE -----------
     mov dl, 0ah
     mov ah, 02h
     int 21h
@@ -254,7 +246,7 @@ next_disp16_ls:
     jnz disp16_res_ls
 
 ;====================================================================
-; EXIT TO DOS
+; exit to dos
 ;====================================================================
     mov dl, 0ah
     mov ah, 02h
