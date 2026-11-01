@@ -1,352 +1,174 @@
-; perform 32-bit addition and subtraction
-
 .model small
 .stack 100h
 
 .data
-    ; Prompts & Titles
-    title1      db 0dh, 0ah, "--- 32-BIT ADDITION ---$"
-    title2      db 0dh, 0ah, "--- 32-BIT SUBTRACTION ---$"
-
-    msg_num32_1 db 0dh, 0ah, "Enter first 32-bit number (8 hex digits) : $"
-    msg_num32_2 db 0dh, 0ah, "Enter second 32-bit number (8 hex digits): $"
-    msg_sum32   db 0dh, 0ah, "Result (Sum)                            : $"
-    msg_diff32  db 0dh, 0ah, "Result (Difference)                     : $"
-
-    ; 32-bit operands stored as Lower Word (LSW) and Higher Word (MSW)
-    num32_1_ls dw 0000h
-    num32_1_ms dw 0000h
-
-    num32_2_ls dw 0000h
-    num32_2_ms dw 0000h
-
-    res32_ls   dw 0000h
-    res32_ms   dw 0000h
+    msg_prompt1 db 0dh, 0ah, "Enter first 32-bit hex number (8 hex digits): $", 0
+    msg_prompt2 db 0dh, 0ah, "Enter second 32-bit hex number (8 hex digits): $", 0
+    msg_add     db 0dh, 0ah, "Addition Result (SUM): $", 0
+    msg_sub     db 0dh, 0ah, "Subtraction Result (DIFF): $", 0
+    
+    ; Storage for two 32-bit values (Upper word: DX, Lower word: BX)
+    num1_hi dw ?
+    num1_lo dw ?
+    num2_hi dw ?
+    num2_lo dw ?
 
 .code
 main proc
-    ; Initialize Data Segment
     mov ax, @data
     mov ds, ax
 
-; 32-bit addition
-    lea dx, title1
+    ; --- Read First 32-bit Number ---
+    mov dx, offset msg_prompt1
+    mov ah, 09h
+    int 21h
+    
+    call read_32          ; Returns: DX = Upper 16 bits, BX = Lower 16 bits
+    mov num1_hi, dx
+    mov num1_lo, bx
+
+    ; --- Read Second 32-bit Number ---
+    mov dx, offset msg_prompt2
+    mov ah, 09h
+    int 21h
+    
+    call read_32          ; Returns: DX = Upper 16 bits, BX = Lower 16 bits
+    mov num2_hi, dx
+    mov num2_lo, bx
+
+    ; --- Perform 32-bit Addition ---
+    mov dx, offset msg_add
     mov ah, 09h
     int 21h
 
-    ; Input First 32-bit Number (MSW first, then LSW)
-    lea dx, msg_num32_1
+    mov ax, num1_lo
+    add ax, num2_lo       ; Add lower 16 bits
+    mov bx, ax            ; Store lower sum in BX
+
+    mov ax, num1_hi
+    adc ax, num2_hi       ; Add upper 16 bits with carry flag (CF)
+    mov dx, ax            ; Store upper sum in DX
+
+    call print_32         ; Prints 32-bit value in DX:BX
+
+    ; --- Perform 32-bit Subtraction ---
+    mov dx, offset msg_sub
     mov ah, 09h
     int 21h
 
-    ; Read Higher 16 bits
-    mov ch, 04h
-    mov cl, 04h
-    mov bx, 0000h
-read32_add1_ms:
-    shl bx, cl
-    mov ah, 01h
-    int 21h
-    cmp al, 41h
-    jb  next32_add1_ms
-    sub al, 07h
-next32_add1_ms:
-    sub al, 30h
-    mov ah, 00h
-    add bx, ax
-    dec ch
-    jnz read32_add1_ms
-    mov num32_1_ms, bx
+    mov ax, num1_lo
+    sub ax, num2_lo       ; Subtract lower 16 bits
+    mov bx, ax            ; Store lower difference in BX
 
-    ; Read Lower 16 bits
-    mov ch, 04h
-    mov cl, 04h
-    mov bx, 0000h
-read32_add1_ls:
-    shl bx, cl
-    mov ah, 01h
-    int 21h
-    cmp al, 41h
-    jb  next32_add1_ls
-    sub al, 07h
-next32_add1_ls:
-    sub al, 30h
-    mov ah, 00h
-    add bx, ax
-    dec ch
-    jnz read32_add1_ls
-    mov dl, 0ah
-    mov ah, 02h
-    int 21h
-    mov dl, 0dh
-    mov ah, 02h
-    int 21h
-    mov num32_1_ls, bx
+    mov ax, num1_hi
+    sbb ax, num2_hi       ; Subtract upper 16 bits with borrow flag (CF)
+    mov dx, ax            ; Store upper difference in DX
 
-    ; Input Second 32-bit Number (MSW first, then LSW)
-    lea dx, msg_num32_2
-    mov ah, 09h
-    int 21h
+    call print_32         ; Prints 32-bit value in DX:BX
 
-    ; Read Higher 16 bits
-    mov ch, 04h
-    mov cl, 04h
-    mov bx, 0000h
-read32_add2_ms:
-    shl bx, cl
-    mov ah, 01h
+    ; --- Exit Program ---
+    mov ax, 4c00h
     int 21h
-    cmp al, 41h
-    jb  next32_add2_ms
-    sub al, 07h
-next32_add2_ms:
-    sub al, 30h
-    mov ah, 00h
-    add bx, ax
-    dec ch
-    jnz read32_add2_ms
-    mov num32_2_ms, bx
-
-    ; Read Lower 16 bits
-    mov ch, 04h
-    mov cl, 04h
-    mov bx, 0000h
-read32_add2_ls:
-    shl bx, cl
-    mov ah, 01h
-    int 21h
-    cmp al, 41h
-    jb  next32_add2_ls
-    sub al, 07h
-next32_add2_ls:
-    sub al, 30h
-    mov ah, 00h
-    add bx, ax
-    dec ch
-    jnz read32_add2_ls
-    mov dl, 0ah
-    mov ah, 02h
-    int 21h
-    mov dl, 0dh
-    mov ah, 02h
-    int 21h
-    mov num32_2_ls, bx
-
-    ; Perform 32-Bit Addition
-    mov ax, num32_1_ls
-    add ax, num32_2_ls
-    mov res32_ls, ax
-
-    mov ax, num32_1_ms
-    adc ax, num32_2_ms
-    mov res32_ms, ax
-
-    ; Display Result
-    lea dx, msg_sum32
-    mov ah, 09h
-    int 21h
-
-    ; Display Higher 16 bits
-    mov ch, 04h
-    mov cl, 04h
-    mov bx, res32_ms
-disp32_add_ms:
-    rol bx, cl
-    mov dl, bl
-    and dl, 0fh
-    cmp dl, 0ah
-    jb  next32_disp_add_ms
-    add dl, 07h
-next32_disp_add_ms:
-    add dl, 30h
-    mov ah, 02h
-    int 21h
-    dec ch
-    jnz disp32_add_ms
-
-    ; Display Lower 16 bits
-    mov ch, 04h
-    mov cl, 04h
-    mov bx, res32_ls
-disp32_add_ls:
-    rol bx, cl
-    mov dl, bl
-    and dl, 0fh
-    cmp dl, 0ah
-    jb  next32_disp_add_ls
-    add dl, 07h
-next32_disp_add_ls:
-    add dl, 30h
-    mov ah, 02h
-    int 21h
-    dec ch
-    jnz disp32_add_ls
-
-; 32-bit subtraction
-    lea dx, title2
-    mov ah, 09h
-    int 21h
-
-    ; Input First 32-bit Number (MSW first, then LSW)
-    lea dx, msg_num32_1
-    mov ah, 09h
-    int 21h
-
-    ; Read Higher 16 bits
-    mov ch, 04h
-    mov cl, 04h
-    mov bx, 0000h
-read32_sub1_ms:
-    shl bx, cl
-    mov ah, 01h
-    int 21h
-    cmp al, 41h
-    jb  next32_sub1_ms
-    sub al, 07h
-next32_sub1_ms:
-    sub al, 30h
-    mov ah, 00h
-    add bx, ax
-    dec ch
-    jnz read32_sub1_ms
-    mov num32_1_ms, bx
-
-    ; Read Lower 16 bits
-    mov ch, 04h
-    mov cl, 04h
-    mov bx, 0000h
-read32_sub1_ls:
-    shl bx, cl
-    mov ah, 01h
-    int 21h
-    cmp al, 41h
-    jb  next32_sub1_ls
-    sub al, 07h
-next32_sub1_ls:
-    sub al, 30h
-    mov ah, 00h
-    add bx, ax
-    dec ch
-    jnz read32_sub1_ls
-    mov dl, 0ah
-    mov ah, 02h
-    int 21h
-    mov dl, 0dh
-    mov ah, 02h
-    int 21h
-    mov num32_1_ls, bx
-
-    ; Input Second 32-bit Number (MSW first, then LSW)
-    lea dx, msg_num32_2
-    mov ah, 09h
-    int 21h
-
-    ; Read Higher 16 bits
-    mov ch, 04h
-    mov cl, 04h
-    mov bx, 0000h
-read32_sub2_ms:
-    shl bx, cl
-    mov ah, 01h
-    int 21h
-    cmp al, 41h
-    jb  next32_sub2_ms
-    sub al, 07h
-next32_sub2_ms:
-    sub al, 30h
-    mov ah, 00h
-    add bx, ax
-    dec ch
-    jnz read32_sub2_ms
-    mov num32_2_ms, bx
-
-    ; Read Lower 16 bits
-    mov ch, 04h
-    mov cl, 04h
-    mov bx, 0000h
-read32_sub2_ls:
-    shl bx, cl
-    mov ah, 01h
-    int 21h
-    cmp al, 41h
-    jb  next32_sub2_ls
-    sub al, 07h
-next32_sub2_ls:
-    sub al, 30h
-    mov ah, 00h
-    add bx, ax
-    dec ch
-    jnz read32_sub2_ls
-    mov dl, 0ah
-    mov ah, 02h
-    int 21h
-    mov dl, 0dh
-    mov ah, 02h
-    int 21h
-    mov num32_2_ls, bx
-
-    ; Perform 32-Bit Subtraction
-    mov ax, num32_1_ls
-    sub ax, num32_2_ls
-    mov res32_ls, ax
-
-    mov ax, num32_1_ms
-    sbb ax, num32_2_ms
-    mov res32_ms, ax
-
-    ; Display Result
-    lea dx, msg_diff32
-    mov ah, 09h
-    int 21h
-
-    ; Display Higher 16 bits
-    mov ch, 04h
-    mov cl, 04h
-    mov bx, res32_ms
-disp32_sub_ms:
-    rol bx, cl
-    mov dl, bl
-    and dl, 0fh
-    cmp dl, 0ah
-    jb  next32_disp_sub_ms
-    add dl, 07h
-next32_disp_sub_ms:
-    add dl, 30h
-    mov ah, 02h
-    int 21h
-    dec ch
-    jnz disp32_sub_ms
-
-    ; Display Lower 16 bits
-    mov ch, 04h
-    mov cl, 04h
-    mov bx, res32_ls
-disp32_sub_ls:
-    rol bx, cl
-    mov dl, bl
-    and dl, 0fh
-    cmp dl, 0ah
-    jb  next32_disp_sub_ls
-    add dl, 07h
-next32_disp_sub_ls:
-    add dl, 30h
-    mov ah, 02h
-    int 21h
-    dec ch
-    jnz disp32_sub_ls
-
-;====================================================================
-; exit to dos
-;====================================================================
-    mov dl, 0ah
-    mov ah, 02h
-    int 21h
-    mov dl, 0dh
-    mov ah, 02h
-    int 21h
-
-    mov ah, 4ch
-    int 21h
-
 main endp
+
+read_8 proc
+    mov ch, 02h
+    mov cl, 04h
+    xor bl, bl
+
+r8_next:
+    mov ah, 01h
+    int 21h
+
+    cmp al, 0dh
+    je r8_next
+    cmp al, 0ah
+    je r8_next
+    cmp al, ' '
+    je r8_next
+
+    shl bl, cl
+
+    cmp al, '9'
+    jbe r8_digit
+    sub al, 07h
+
+r8_digit:
+    sub al, 30h
+    add bl, al
+
+    dec ch
+    jnz r8_next
+    ret
+read_8 endp
+
+
+read_16 proc
+    call read_8
+    mov bh, bl
+
+    call read_8
+    ret
+read_16 endp
+
+
+read_32 proc
+    call read_16
+    push bx                ; save upper word
+
+    call read_16           ; lower word returned in BX
+    pop dx                 ; upper word returned in DX
+    ret
+read_32 endp
+
+
+print_8 proc
+    mov ch, 02h
+    mov cl, 04h
+
+p8_loop:
+    rol bl, cl
+    mov dl, bl
+    and dl, 0fh
+
+    cmp dl, 09h
+    jbe p8_digit
+    add dl, 07h
+
+p8_digit:
+    add dl, 30h
+    mov ah, 02h
+    int 21h
+
+    dec ch
+    jnz p8_loop
+    ret
+print_8 endp
+
+
+print_16 proc
+    push bx
+
+    mov bl, bh
+    call print_8
+
+    pop bx
+    call print_8
+    ret
+print_16 endp
+
+
+print_32 proc
+    push dx
+    push bx
+
+    mov bx, dx
+    call print_16
+
+    pop bx
+    call print_16
+    pop dx
+    ret
+print_32 endp
+
 end main
